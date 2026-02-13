@@ -1,4 +1,5 @@
 ﻿using MakerMusic.Api.Domain;
+using MakerMusic.Api.DTOs;
 using MakerMusic.Api.Repositories;
 
 namespace MakerMusic.Api.Services
@@ -30,9 +31,38 @@ namespace MakerMusic.Api.Services
             return enrollment;
         }
 
-        public async Task<List<Enrollment>> GetEnrollmentsAsync()
+        public async Task<List<ResponseEnrollmentDTO>> GetEnrollmentsAsync()
         {
-            return await _repository.GetEnrollmentsAsync();
+            var enrollments = await _repository.GetEnrollmentsAsync();
+
+            var response = enrollments.Select(e => new ResponseEnrollmentDTO(
+                e.Id,
+                e.StudentId,
+                e.CourseId,
+                e.Price,
+                e.EnrollmentDate,
+                new ResponseStudentDTO
+                (
+                    e.Student.Id,
+                    e.Student.Name,
+                    e.Student.Email
+                ),
+                new ResponseCourseDTO
+                (
+                    e.Course.Id,
+                    e.Course.Title,
+                    e.Course.Description,
+                    e.Course.Price,
+                    e.Course.TeacherId
+                )
+            )).ToList();
+
+            return response;
+        }
+
+        public async Task<bool> CancelEnrollmentAsync(Guid id)
+        {
+            return await _repository.CancelEnrollmentAsync(id);
         }
     }
 }

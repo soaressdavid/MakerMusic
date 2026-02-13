@@ -1,4 +1,5 @@
 ﻿using MakerMusic.Api.Domain;
+using MakerMusic.Api.DTOs;
 using MakerMusic.Api.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +31,15 @@ namespace MakerMusic.Api.Repositories
                 .Include(e => e.Student)
                 .Include(e => e.Course)
                 .ToListAsync();
+        }
+
+        public async Task<bool> CancelEnrollmentAsync(Guid id)
+        {
+            var enrollment = await _context.Enrollments.FindAsync(id);
+            if (enrollment == null) return false;
+            _context.Enrollments.Remove(enrollment);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

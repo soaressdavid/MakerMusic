@@ -50,32 +50,30 @@ namespace MakerMusic.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<List<ResponseEnrollmentDTO>>> GetEnrollments()
         {
-            var enrollments = await _service.GetEnrollmentsAsync();
+            try
+            {
+                var responses = await _service.GetEnrollmentsAsync();
+                return Ok(responses);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-            var response = enrollments.Select(e => new ResponseEnrollmentDTO(
-                e.Id,
-                e.StudentId,
-                e.CourseId,
-                e.Price,
-                e.EnrollmentDate,
-                new ResponseStudentDTO
-                (
-                    e.Student.Id,
-                    e.Student.Name,
-                    e.Student.Email
-                ),
-                new ResponseCourseDTO
-                (
-                    e.Course.Id,
-                    e.Course.Title,
-                    e.Course.Description,
-                    e.Course.Price,
-                    e.Course.TeacherId
-                )
-            )).ToList();
-
-            return Ok(response);
-
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> CancelEnrollmentAsync(Guid id)
+        {
+            try
+            {
+                var success = await _service.CancelEnrollmentAsync(id);
+                if (!success) return NotFound();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
